@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Home{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/search.css' %}">
+{% endblock %}
+
+{% block content %}
+{% if not user.is_authenticated %}
+<div class="auth-container">
+    <div class="logo">
+        <img src="{% static 'images/logo.png' %}" alt="Logo" class="logo-image">
+    </div>
+    
+    {% if messages %}
+        {% for message in messages %}
+            <div class="message {% if message.tags %}{{ message.tags }}{% endif %}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+    
+    <div style="text-align: center; color: white;">
+        <h2>Welcome!</h2>
+        <p>Please login to access all features.</p>
+        
+        <div class="form-group">
+            <a href="{% url 'login' %}" class="btn">Login</a>
+        </div>
+        <div class="form-group">
+            <a href="{% url 'register' %}" class="btn btn-secondary">Register</a>
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="search-container">
+    <form class="search-form" method="get" action="{% url 'results' %}">
+        <div class="form-row">
+            <div class="form-field with-icon">
+                <label for="city">CITY</label>
+                <i class="fas fa-map-marker-alt"></i>
+                <input type="text" id="city" name="city" placeholder="Almaty" value="Almaty">
+            </div>
+            
+            <div class="form-field">
+                <label for="vin">VIN NUMBER</label>
+                <input type="text" id="vin" name="vin" placeholder="SKET00001267" value="SKET00001267">
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-field">
+                <label for="make">MAKE</label>
+                <input type="text" id="make" name="make" placeholder="Nissan" value="Nissan">
+            </div>
+            
+            <div class="form-field">
+                <label for="model">MODEL</label>
+                <input type="text" id="model" name="model" placeholder="350Z" value="350Z">
+            </div>
+            
+            <div class="form-field">
+                <label for="generation">GENERATION</label>
+                <input type="text" id="generation" name="generation" placeholder="2001 - 2009" value="2001 - 2009">
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-field with-icon">
+                <label for="search">WHAT ARE YOU LOOKING FOR?</label>
+                <i class="fas fa-search"></i>
+                <input type="text" id="search" name="search" placeholder="Alternator" value="Alternator">
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="toggle-group">
+                <div class="toggle-btn active" id="new-btn">New</div>
+                <div class="toggle-btn" id="used-btn">Used</div>
+                <input type="hidden" name="condition" id="condition" value="new">
+            </div>
+        </div>
+        
+        <button type="submit" class="search-btn">Ready</button>
+    </form>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const newBtn = document.getElementById('new-btn');
+        const usedBtn = document.getElementById('used-btn');
+        const conditionInput = document.getElementById('condition');
+        
+        newBtn.addEventListener('click', function() {
+            newBtn.classList.add('active');
+            usedBtn.classList.remove('active');
+            conditionInput.value = 'new';
+        });
+        
+        usedBtn.addEventListener('click', function() {
+            usedBtn.classList.add('active');
+            newBtn.classList.remove('active');
+            conditionInput.value = 'used';
+        });
+    });
+</script>
+{% endif %}
+{% endblock %}

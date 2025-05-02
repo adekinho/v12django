@@ -1,0 +1,182 @@
+/* Header and Navbar Styles */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Arial', sans-serif;
+    background-color: #1a1a1a;
+    color: white;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 30px;
+    background-color: #222;
+    border-bottom: 1px solid #333;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 40px; /* Fixed height for header */
+    z-index: 1000;
+}
+
+.logo-header {
+    height: 40px;
+    width: auto;
+}
+
+.profile-section {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.username {
+    color: #fff;
+    font-size: 14px;
+}
+
+.profile-photo {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #444;
+    overflow: hidden;
+    cursor: pointer;
+    border: 1px solid #555;
+}
+
+.profile-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.navbar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px 0;
+    background-color: #222;
+    gap: 40px;
+    position: fixed;
+    top: 70px; /* Increased from header height + padding */
+    left: 0;
+    right: 0;
+    z-index: 999;
+    border-bottom: 1px solid #333;
+    height: 40px; /* Fixed height for navbar */
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    color: #ccc;
+    text-decoration: none;
+    font-size: 14px;
+    gap: 8px;
+    padding: 8px 12px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.nav-item:hover, .nav-item.active {
+    background-color: #333;
+    color: #fff;
+}
+
+.nav-item.active::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background-color: #4C89F8;
+}
+
+.nav-item i {
+    font-size: 20px;
+}
+
+.main-content {
+    margin-top: 130px; /* Adjusted to account for fixed header + navbar heights */
+    flex: 1;
+    padding: 20px;
+}
+
+/* Profile Page Styles */
+.profile-container {
+    max-width: 800px;
+    margin: 150px auto 30px;
+    background-color: #222;
+    border-radius: 8px;
+    padding: 30px;
+}
+
+.profile-header {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+    margin-bottom: 30px;
+}
+
+.profile-picture {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 3px solid #4C89F8;
+}
+
+.profile-picture img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.profile-info h1 {
+    color: white;
+    margin-bottom: 10px;
+}
+
+.profile-info p {
+    color: #ccc;
+    margin-bottom: 5px;
+}
+
+.profile-content {
+    border-top: 1px solid #333;
+    padding-top: 20px;
+}
+
+.profile-section {
+    margin-bottom: 30px;
+}
+
+.profile-section h2 {
+    color: white;
+    margin-bottom: 15px;
+    font-size: 18px;
+}
+
+.edit-profile-btn {
+    background-color: #4C89F8;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    margin-top: 10px;
+}
+
+.edit-profile-btn:hover {
+    background-color: #3b78e7;
+}

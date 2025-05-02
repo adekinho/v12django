@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Update Search Request{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/search.css' %}">
+<style>
+    .update-container {
+        width: 100%;
+        max-width: 980px;
+        margin: 130px auto 30px;
+        padding: 0 15px;
+    }
+    
+    .back-link {
+        display: inline-block;
+        margin-bottom: 20px;
+        color: #4C89F8;
+        text-decoration: none;
+        font-size: 14px;
+    }
+    
+    .back-link i {
+        margin-right: 5px;
+    }
+    
+    .back-link:hover {
+        text-decoration: underline;
+    }
+    
+    .update-form {
+        background-color: #333;
+        border-radius: 4px;
+        padding: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .update-title {
+        color: white;
+        margin-top: 0;
+        margin-bottom: 20px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        padding-bottom: 10px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="update-container">
+    <a href="{% url 'results' %}" class="back-link"><i class="fas fa-arrow-left"></i> Back to Results</a>
+    
+    <h1 style="color: white; margin-bottom: 20px;">Update Search Request</h1>
+    
+    {% if messages %}
+        {% for message in messages %}
+            <div class="message {% if message.tags %}{{ message.tags }}{% endif %}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+    
+    <div class="update-form">
+        <h2 class="update-title">Edit your search request</h2>
+        
+        <form class="search-form" method="post">
+            {% csrf_token %}
+            <div class="form-row">
+                <div class="form-field with-icon">
+                    <label for="city">CITY</label>
+                    <i class="fas fa-map-marker-alt"></i>
+                    <input type="text" id="city" name="city" value="{{ search_request.city }}">
+                </div>
+                
+                <div class="form-field">
+                    <label for="vin">VIN NUMBER</label>
+                    <input type="text" id="vin" name="vin" value="{{ search_request.vin }}">
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-field">
+                    <label for="make">MAKE</label>
+                    <input type="text" id="make" name="make" value="{{ search_request.make }}">
+                </div>
+                
+                <div class="form-field">
+                    <label for="model">MODEL</label>
+                    <input type="text" id="model" name="model" value="{{ search_request.model }}">
+                </div>
+                
+                <div class="form-field">
+                    <label for="generation">GENERATION</label>
+                    <input type="text" id="generation" name="generation" value="{{ search_request.generation }}">
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-field with-icon">
+                    <label for="search">WHAT ARE YOU LOOKING FOR?</label>
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="search" name="search" value="{{ search_request.search }}">
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="toggle-group">
+                    <div class="toggle-btn {% if search_request.condition == 'new' %}active{% endif %}" id="new-btn">New</div>
+                    <div class="toggle-btn {% if search_request.condition == 'used' %}active{% endif %}" id="used-btn">Used</div>
+                    <input type="hidden" name="condition" id="condition" value="{{ search_request.condition }}">
+                </div>
+            </div>
+            
+            <button type="submit" class="search-btn">Update Request</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const newBtn = document.getElementById('new-btn');
+        const usedBtn = document.getElementById('used-btn');
+        const conditionInput = document.getElementById('condition');
+        
+        newBtn.addEventListener('click', function() {
+            newBtn.classList.add('active');
+            usedBtn.classList.remove('active');
+            conditionInput.value = 'new';
+        });
+        
+        usedBtn.addEventListener('click', function() {
+            usedBtn.classList.add('active');
+            newBtn.classList.remove('active');
+            conditionInput.value = 'used';
+        });
+    });
+</script>
+{% endblock %}

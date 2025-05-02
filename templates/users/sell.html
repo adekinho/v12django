@@ -1,0 +1,348 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Продам{% endblock %}
+
+{% block extra_css %}
+<style>
+    .sell-container {
+        width: 100%;
+        max-width: 980px;
+        margin: 130px auto 30px;
+        padding: 0 15px;
+    }
+    
+    .filter-bar {
+        background-color: #2a2a2a;
+        border-radius: 4px;
+        padding: 20px;
+        margin-bottom: 30px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .filter-form {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        align-items: flex-end;
+    }
+    
+    .filter-group {
+        flex: 1;
+        min-width: 150px;
+    }
+    
+    .filter-label {
+        display: block;
+        font-size: 12px;
+        color: #999;
+        margin-bottom: 5px;
+        text-transform: uppercase;
+    }
+    
+    .filter-select {
+        width: 100%;
+        padding: 10px;
+        background-color: #333;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 4px;
+        color: white;
+    }
+    
+    .filter-button {
+        background-color: #4C89F8;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 10px 15px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        height: 40px;
+    }
+    
+    .filter-button:hover {
+        background-color: #3b78e7;
+    }
+    
+    .seller-requests {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+    
+    .request-card {
+        background-color: #333;
+        border-radius: 4px;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .request-header {
+        background-color: #2a2a2a;
+        padding: 15px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .request-title {
+        color: white;
+        font-size: 18px;
+        font-weight: bold;
+        margin: 0;
+    }
+    
+    .request-date {
+        color: #999;
+        font-size: 14px;
+    }
+    
+    .request-content {
+        padding: 15px;
+        display: flex;
+    }
+    
+    .request-details {
+        flex: 1;
+    }
+    
+    .request-info {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-bottom: 15px;
+    }
+    
+    .info-group {
+        min-width: 100px;
+    }
+    
+    .info-label {
+        color: #999;
+        font-size: 12px;
+        text-transform: uppercase;
+        margin-bottom: 4px;
+    }
+    
+    .info-value {
+        color: white;
+        font-weight: bold;
+    }
+    
+    .request-description {
+        color: #ccc;
+        margin-bottom: 15px;
+    }
+    
+    .request-price {
+        color: #4C89F8;
+        font-size: 24px;
+        font-weight: bold;
+        margin-top: 15px;
+    }
+    
+    .contact-button {
+        background-color: #4C89F8;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 10px 15px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: background-color 0.3s;
+        text-decoration: none;
+        display: inline-block;
+        width: 180px;
+        text-align: center;
+        margin-top: auto;
+    }
+    
+    .contact-button:hover {
+        background-color: #3b78e7;
+    }
+    
+    .no-requests {
+        color: #999;
+        text-align: center;
+        padding: 40px;
+        background-color: #333;
+        border-radius: 4px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .messages {
+        margin-bottom: 20px;
+    }
+    
+    .message {
+        padding: 10px 15px;
+        border-radius: 4px;
+        margin-bottom: 10px;
+    }
+    
+    .success {
+        background-color: rgba(46, 204, 113, 0.2);
+        color: #2ecc71;
+    }
+    
+    .error {
+        background-color: rgba(231, 76, 60, 0.2);
+        color: #e74c3c;
+    }
+    
+    .car-brand-logo {
+        width: 40px;
+        height: 40px;
+        background-color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 10px;
+    }
+    
+    .status-tag {
+        display: inline-flex;
+        align-items: center;
+        background-color: rgba(0, 128, 0, 0.2);
+        color: #5dff5d;
+        border-radius: 4px;
+        padding: 3px 6px;
+        font-size: 12px;
+        margin-right: 5px;
+    }
+    
+    .status-tag i {
+        margin-right: 4px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="sell-container">
+    <h1 style="color: white; margin-bottom: 20px;">Продам</h1>
+    
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+            <div class="message {% if message.tags %}{{ message.tags }}{% endif %}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    <div class="filter-bar">
+        <form class="filter-form" method="get">
+            <div class="filter-group">
+                <label class="filter-label" for="city-filter">Город</label>
+                <select class="filter-select" id="city-filter" name="city">
+                    <option value="">Все города</option>
+                    {% for city in cities %}
+                        <option value="{{ city }}" {% if request.GET.city == city %}selected{% endif %}>{{ city }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label class="filter-label" for="make-filter">Марка</label>
+                <select class="filter-select" id="make-filter" name="make">
+                    <option value="">Все марки</option>
+                    {% for make in makes %}
+                        <option value="{{ make }}" {% if request.GET.make == make %}selected{% endif %}>{{ make }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label class="filter-label" for="model-filter">Модель</label>
+                <select class="filter-select" id="model-filter" name="model">
+                    <option value="">Все модели</option>
+                    {% for model in models %}
+                        <option value="{{ model }}" {% if request.GET.model == model %}selected{% endif %}>{{ model }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label class="filter-label" for="generation-filter">Поколение</label>
+                <select class="filter-select" id="generation-filter" name="generation">
+                    <option value="">Все поколения</option>
+                    {% for generation in generations %}
+                        <option value="{{ generation }}" {% if request.GET.generation == generation %}selected{% endif %}>{{ generation }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <button type="submit" class="filter-button">Применить</button>
+        </form>
+    </div>
+    
+    <div class="seller-requests">
+        {% if seller_requests %}
+            {% for request in seller_requests %}
+                <div class="request-card">
+                    <div class="request-header">
+                        <div style="display: flex; align-items: center;">
+                            <div class="car-brand-logo">
+                                {% if request.make|lower == 'nissan' %}
+                                    <img src="{% static 'images/nissan-logo.png' %}" alt="Nissan" width="30" height="30">
+                                {% elif request.make|lower == 'toyota' %}
+                                    <img src="{% static 'images/toyota-logo.png' %}" alt="Toyota" width="30" height="30">
+                                {% else %}
+                                    <i class="fas fa-car" style="color: #333;"></i>
+                                {% endif %}
+                            </div>
+                            <h3 class="request-title">{{ request.part_name }}</h3>
+                        </div>
+                        <span class="request-date">{{ request.created_at|date:"d.m.Y" }}</span>
+                    </div>
+                    <div class="request-content">
+                        <div class="request-details">
+                            <div class="request-info">
+                                <div class="info-group">
+                                    <div class="info-label">Город</div>
+                                    <div class="info-value">{{ request.city }}</div>
+                                </div>
+                                <div class="info-group">
+                                    <div class="info-label">Марка</div>
+                                    <div class="info-value">{{ request.make }}</div>
+                                </div>
+                                <div class="info-group">
+                                    <div class="info-label">Модель</div>
+                                    <div class="info-value">{{ request.model }}</div>
+                                </div>
+                                {% if request.generation %}
+                                <div class="info-group">
+                                    <div class="info-label">Поколение</div>
+                                    <div class="info-value">{{ request.generation }}</div>
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                            {% if request.description %}
+                            <div class="request-description">
+                                {{ request.description }}
+                            </div>
+                            {% endif %}
+                            
+                            {% if request.price %}
+                            <div class="request-price">
+                                {{ request.price }} ₸
+                            </div>
+                            {% endif %}
+                        </div>
+                        <a href="{% url 'respond' request.id %}" class="contact-button">Ответить на запрос</a>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="no-requests">
+                <h3>Нет запросов на продажу</h3>
+                <p>В данный момент нет активных запросов, соответствующих вашим критериям.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

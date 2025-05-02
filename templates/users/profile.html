@@ -1,0 +1,247 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Profile{% endblock %}
+
+{% block extra_css %}
+<style>
+    .profile-container {
+        width: 100%;
+        max-width: 980px;
+        margin: 130px auto 30px;
+        padding: 0 15px;
+    }
+    
+    .profile-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 30px;
+    }
+    
+    .profile-picture {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        overflow: hidden;
+        margin-right: 30px;
+        border: 4px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .profile-picture img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .profile-info {
+        color: white;
+    }
+    
+    .profile-info h1 {
+        margin-bottom: 10px;
+    }
+    
+    .profile-info p {
+        margin-bottom: 5px;
+        color: #ccc;
+    }
+    
+    .edit-profile-btn {
+        background-color: #4C89F8;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 8px 15px;
+        margin-top: 10px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+    
+    .edit-profile-btn:hover {
+        background-color: #3b78e7;
+    }
+    
+    .profile-content {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+    }
+    
+    .profile-section {
+        flex: 1;
+        min-width: 280px;
+        background-color: #333;
+        border-radius: 4px;
+        padding: 20px;
+        margin-bottom: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .profile-section h2 {
+        margin-top: 0;
+        margin-bottom: 15px;
+        color: white;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        padding-bottom: 10px;
+    }
+    
+    .settings-options ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .settings-options li {
+        margin-bottom: 10px;
+    }
+    
+    .settings-options a {
+        color: #4C89F8;
+        text-decoration: none;
+        transition: color 0.3s;
+    }
+    
+    .settings-options a:hover {
+        color: #3b78e7;
+    }
+    
+    .empty-message {
+        color: #999;
+        font-style: italic;
+    }
+    
+    .activity-list, .search-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .activity-item, .search-item {
+        padding: 12px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        color: #ccc;
+    }
+    
+    .activity-item:last-child, .search-item:last-child {
+        border-bottom: none;
+    }
+    
+    .activity-type {
+        display: inline-block;
+        padding: 2px 6px;
+        border-radius: 3px;
+        font-size: 12px;
+        margin-right: 5px;
+    }
+    
+    .activity-type.search {
+        background-color: rgba(76, 137, 248, 0.2);
+        color: #4C89F8;
+    }
+    
+    .activity-type.login {
+        background-color: rgba(46, 204, 113, 0.2);
+        color: #2ecc71;
+    }
+    
+    .activity-type.logout {
+        background-color: rgba(231, 76, 60, 0.2);
+        color: #e74c3c;
+    }
+    
+    .activity-type.profile_update {
+        background-color: rgba(241, 196, 15, 0.2);
+        color: #f1c40f;
+    }
+    
+    .activity-type.other {
+        background-color: rgba(155, 89, 182, 0.2);
+        color: #9b59b6;
+    }
+    
+    .activity-date, .search-date {
+        display: block;
+        font-size: 12px;
+        color: #777;
+        margin-top: 5px;
+    }
+    
+    .search-info {
+        color: white;
+        font-weight: bold;
+    }
+    
+    .search-details {
+        font-size: 14px;
+        margin-top: 3px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+    <div class="profile-header">
+        <div class="profile-picture">
+            <img src="{% static 'images/default-profile.png' %}" alt="Profile Picture">
+        </div>
+        <div class="profile-info">
+            <h1>{{ user.username }}</h1>
+            <p>Email: {{ user.email }}</p>
+            <p>Member since: {{ user.date_joined|date:"F d, Y" }}</p>
+            <button class="edit-profile-btn">Edit Profile</button>
+        </div>
+    </div>
+    
+    <div class="profile-content">
+        <div class="profile-section">
+            <h2>My Recent Searches</h2>
+            {% if search_history %}
+                <ul class="search-list">
+                    {% for search in search_history %}
+                        <li class="search-item">
+                            <div class="search-info">{{ search.search }}</div>
+                            <div class="search-details">
+                                {{ search.make }} {{ search.model }} {% if search.generation %}({{ search.generation }}){% endif %}
+                                {% if search.vin %} • VIN: {{ search.vin }}{% endif %}
+                            </div>
+                            <div class="search-date">{{ search.created_at|date:"F d, Y" }} at {{ search.created_at|time:"H:i" }}</div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="empty-message">You haven't made any searches yet.</p>
+            {% endif %}
+        </div>
+        
+        <div class="profile-section">
+            <h2>My Activities</h2>
+            {% if activities %}
+                <ul class="activity-list">
+                    {% for activity in activities %}
+                        <li class="activity-item">
+                            <span class="activity-type {{ activity.activity_type }}">{{ activity.get_activity_type_display }}</span>
+                            {{ activity.description }}
+                            <span class="activity-date">{{ activity.created_at|date:"F d, Y" }} at {{ activity.created_at|time:"H:i" }}</span>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="empty-message">You haven't posted any activities yet.</p>
+            {% endif %}
+        </div>
+        
+        <div class="profile-section">
+            <h2>Settings</h2>
+            <p>Update your account settings and preferences here.</p>
+            <div class="settings-options">
+                <ul>
+                    <li><a href="#">Change Password</a></li>
+                    <li><a href="#">Notification Settings</a></li>
+                    <li><a href="#">Privacy Settings</a></li>
+                    <li><a href="{% url 'logout' %}">Logout</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

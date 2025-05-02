@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Auth System{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/auth.css' %}">
+    <link rel="stylesheet" href="{% static 'css/navbar.css' %}">
+    <link rel="stylesheet" href="{% static 'css/background.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <div class="background-container" id="background-circles"></div>
+    
+    {% if user.is_authenticated %}
+    <header class="header">
+        <a href="{% url 'home' %}">
+            <img src="{% static 'images/logo.png' %}" alt="Logo" class="logo-header">
+        </a>
+        <div class="profile-section">
+            <span class="username">{{ user.username }}</span>
+            <a href="{% url 'profile' %}">
+                <div class="profile-photo">
+                    <img src="{% static 'images/default-profile.png' %}" alt="Profile">
+                </div>
+            </a>
+        </div>
+    </header>
+    <nav class="navbar">
+        <a href="{% url 'home' %}" class="nav-item {% if request.path == '/' %}active{% endif %}">
+            <i class="fas fa-search"></i>
+            В поиске
+        </a>
+        <a href="{% url 'sell' %}" class="nav-item {% if request.path == '/users/sell/' %}active{% endif %}">
+            <i class="fas fa-shopping-cart"></i>
+            Продам
+        </a>
+        <a href="#" class="nav-item">
+            <i class="fas fa-comments"></i>
+            Сообщения
+        </a>
+        <a href="{% url 'results' %}" class="nav-item {% if request.path == '/users/results/' %}active{% endif %}">
+            <i class="fas fa-chart-bar"></i>
+            Результат
+        </a>
+    </nav>
+    {% endif %}
+    
+    <div class="{% if user.is_authenticated %}main-content{% endif %}">
+        {% block content %}{% endblock %}
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const backgroundContainer = document.getElementById('background-circles');
+            const numCircles = 60; // Reduced number of circles to minimize overcrowding
+            const circles = []; // Array to keep track of all circles for collision detection
+            
+            // Create the circles one by one, checking for collisions
+            for (let i = 0; i < numCircles; i++) {
+                // Try up to 20 times to place a non-overlapping circle
+                let attempts = 0;
+                let placed = false;
+                
+                while (!placed && attempts < 20) {
+                    const newCircle = generateRandomCircle();
+                    if (!checkCollision(newCircle, circles)) {
+                        circles.push(newCircle);
+                        renderCircle(newCircle, backgroundContainer);
+                        placed = true;
+                    }
+                    attempts++;
+                }
+            }
+            
+            function generateRandomCircle() {
+                // Random size between 10px and 150px
+                const size = Math.floor(Math.random() * 140) + 10;
+                
+                // Random position (considering the size to keep fully visible)
+                const xPos = Math.floor(Math.random() * 100);
+                const yPos = Math.floor(Math.random() * 100);
+                
+                // Random opacity between 0.1 and 0.2 (more visible)
+                const opacity = (Math.random() * 0.1 + 0.1).toFixed(2);
+                
+                return {
+                    size: size,
+                    x: xPos,
+                    y: yPos,
+                    opacity: opacity
+                };
+            }
+            
+            function checkCollision(newCircle, existingCircles) {
+                for (let i = 0; i < existingCircles.length; i++) {
+                    const circle = existingCircles[i];
+                    
+                    // Calculate distance between circle centers
+                    const dx = (newCircle.x - circle.x) * window.innerWidth / 100;
+                    const dy = (newCircle.y - circle.y) * window.innerHeight / 100;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    // Sum of radii (half of each circle's size)
+                    const sumOfRadii = (newCircle.size + circle.size) / 2;
+                    
+                    // If distance is less than sum of radii, circles overlap
+                    if (distance < sumOfRadii) {
+                        return true; // Collision detected
+                    }
+                }
+                return false; // No collision
+            }
+            
+            function renderCircle(circleData, container) {
+                const circle = document.createElement('div');
+                circle.classList.add('circle');
+                
+                circle.style.width = `${circleData.size}px`;
+                circle.style.height = `${circleData.size}px`;
+                circle.style.left = `${circleData.x}%`;
+                circle.style.top = `${circleData.y}%`;
+                circle.style.backgroundColor = `rgba(255, 255, 255, ${circleData.opacity})`;
+                
+                // Add floating animation properties
+                const duration = (Math.random() * 15 + 10).toFixed(1); // Between 10 and 25 seconds (slightly faster)
+                const xOffset = (Math.random() * 40 + 10).toFixed(1); // Random horizontal movement 10-50px
+                const yOffset = (Math.random() * 40 + 10).toFixed(1); // Random vertical movement 10-50px
+                const delay = (Math.random() * 5).toFixed(1); // Random delay
+                
+                circle.style.setProperty('--duration', `${duration}s`);
+                circle.style.setProperty('--x-offset', `${xOffset}px`);
+                circle.style.setProperty('--y-offset', `${yOffset}px`);
+                circle.style.animationDelay = `-${delay}s`;
+                
+                container.appendChild(circle);
+            }
+        });
+    </script>
+</body>
+</html>
