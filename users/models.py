@@ -70,18 +70,22 @@ class SellerRequest(models.Model):
         ordering = ['-created_at']
 
 class RequestResponse(models.Model):
-    seller_request = models.ForeignKey(SellerRequest, on_delete=models.CASCADE, related_name='responses')
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='request_responses')
-    description = models.TextField(blank=True)
+    seller_request = models.ForeignKey(SellerRequest, on_delete=models.CASCADE, null=True, blank=True, related_name='responses')
+    search_request = models.ForeignKey(SearchRequest, on_delete=models.CASCADE, null=True, blank=True, related_name='responses')
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    description = models.TextField()
     price = models.DecimalField(max_digits=10, decimal_places=2)
     is_vin_matched = models.BooleanField(default=False)
     is_new = models.BooleanField(default=False)
     city = models.CharField(max_length=100)
     address = models.CharField(max_length=255)
-    created_at = models.DateTimeField(default=timezone.now)
+    created_at = models.DateTimeField(auto_now_add=True)
     
     def __str__(self):
-        return f"Response to {self.seller_request.part_name} by {self.user.username}"
+        if self.seller_request:
+            return f"Response to seller request {self.seller_request.id} by {self.user.username}"
+        else:
+            return f"Response to search request {self.search_request.id} by {self.user.username}"
     
     class Meta:
         ordering = ['-created_at']

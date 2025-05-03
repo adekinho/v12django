@@ -328,77 +328,6 @@
         background-color: rgba(231, 76, 60, 0.2);
         color: #e74c3c;
     }
-    
-    .part-tags {
-        display: flex;
-        gap: 5px;
-        margin-bottom: 10px;
-    }
-    
-    .tag {
-        display: inline-flex;
-        align-items: center;
-        padding: 3px 6px;
-        font-size: 12px;
-        border-radius: 4px;
-    }
-    
-    .tag.new {
-        background-color: rgba(0, 128, 0, 0.2);
-        color: #5dff5d;
-    }
-    
-    .tag.used {
-        background-color: rgba(255, 165, 0, 0.2);
-        color: orange;
-    }
-    
-    .tag.vin {
-        background-color: rgba(0, 128, 0, 0.2);
-        color: #5dff5d;
-    }
-    
-    .part-price-contact {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-top: 10px;
-    }
-    
-    .contact-button {
-        background-color: #4C89F8;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        padding: 8px 15px;
-        cursor: pointer;
-        font-size: 14px;
-        transition: background-color 0.3s;
-    }
-    
-    .contact-button:hover {
-        background-color: #3b78e7;
-    }
-    
-    .action-buttons {
-        display: flex;
-        gap: 10px;
-    }
-    
-    .delete-btn {
-        background-color: #e74c3c;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        padding: 8px 15px;
-        cursor: pointer;
-        font-size: 14px;
-        transition: background-color 0.3s;
-    }
-    
-    .delete-btn:hover {
-        background-color: #c0392b;
-    }
 </style>
 {% endblock %}
 
@@ -525,108 +454,164 @@
     {% endif %}
     
     <div class="results-list">
-        {% if responses %}
-            {% for response in responses %}
-                <div class="result-item">
-                    <div class="result-header">
-                        <div class="car-brand-logo">
-                            {% if response.search_request.make %}
-                                {% if response.search_request.make|lower == 'nissan' %}
-                                    <img src="{% static 'images/nissan-logo.png' %}" alt="Nissan" width="30" height="30">
-                                {% elif response.search_request.make|lower == 'toyota' %}
-                                    <img src="{% static 'images/toyota-logo.png' %}" alt="Toyota" width="30" height="30">
-                                {% else %}
-                                    <i class="fas fa-car" style="color: #333;"></i>
-                                {% endif %}
-                            {% else %}
-                                <i class="fas fa-car" style="color: #333;"></i>
-                            {% endif %}
-                        </div>
-                        <div class="result-details">
-                            <div class="car-info">
-                                <div>
-                                    <div class="info-label">Make</div>
-                                    <div class="info-value">{{ response.search_request.make }}</div>
-                                </div>
-                                <div>
-                                    <div class="info-label">Model</div>
-                                    <div class="info-value">{{ response.search_request.model }}</div>
-                                </div>
-                                {% if response.search_request.generation %}
-                                <div>
-                                    <div class="info-label">Generation</div>
-                                    <div class="info-value">{{ response.search_request.generation }}</div>
-                                </div>
-                                {% endif %}
-                                <div>
-                                    <div class="info-label">Car Part Needed</div>
-                                    <div class="info-value">{{ response.search_request.search }}</div>
-                                </div>
-                                {% if response.search_request.vin %}
-                                <div>
-                                    <div class="info-label">VIN Number</div>
-                                    <div class="info-value">{{ response.search_request.vin }}</div>
-                                </div>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="result-content">
-                        <div class="part-image">
-                            {% if response.search_request.search|lower == 'диск сцепления' %}
-                                <img src="{% static 'images/clutch-disc.jpg' %}" alt="Clutch Disc" width="100">
-                            {% else %}
-                                <img src="{% static 'images/transmission.jpg' %}" alt="Transmission" width="100">
-                            {% endif %}
-                        </div>
-                        <div class="part-details">
-                            <h3>{{ response.search_request.search }}</h3>
-                            <p>{{ response.search_request.make }} {{ response.search_request.model }}, {{ response.search_request.generation }}</p>
-                            <div class="part-tags">
-                                {% if response.is_new %}
-                                <span class="tag new">Новое</span>
-                                {% else %}
-                                <span class="tag used">Б/У</span>
-                                {% endif %}
-                                {% if response.is_vin_matched %}
-                                <span class="tag vin">Подобрано по VIN</span>
-                                {% endif %}
-                            </div>
-                            <div class="location">Город: {{ response.city }}, {{ response.address }}</div>
-                            {% if response.description %}
-                            <div class="description">{{ response.description }}</div>
-                            {% endif %}
-                        </div>
-                        <div class="part-price-contact">
-                            <div class="price">Цена: {{ response.price }} тенге</div>
-                            <div class="action-buttons">
-                                <button class="contact-button">Связаться с продавцом</button>
-                                <form method="post" action="{% url 'delete_response' response.id %}" style="display: inline;">
-                                    {% csrf_token %}
-                                    <button type="submit" class="delete-btn" onclick="return confirm('Вы уверены, что хотите удалить этот ответ?')">Удалить</button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
+        <!-- Result Item 1 -->
+        <div class="result-item">
+            <div class="result-header">
+                <div class="car-brand-logo">
+                    <img src="{% static 'images/nissan-logo.png' %}" alt="Nissan" width="30" height="30">
                 </div>
-            {% endfor %}
-        {% elif search %}
-            <div class="waiting-message">
-                <h2>Ожидание ответа от продавцов на ваш запрос</h2>
-                <p>Мы отправили ваш запрос продавцам. Пожалуйста, подождите, пока они ответят.</p>
-                <div class="search-details">
-                    <p><strong>Город:</strong> {{ city }}</p>
-                    {% if vin %}<p><strong>VIN:</strong> {{ vin }}</p>{% endif %}
-                    {% if make %}<p><strong>Марка:</strong> {{ make }}</p>{% endif %}
-                    {% if model %}<p><strong>Модель:</strong> {{ model }}</p>{% endif %}
-                    {% if generation %}<p><strong>Поколение:</strong> {{ generation }}</p>{% endif %}
-                    <p><strong>Запчасть:</strong> {{ search }}</p>
-                    <p><strong>Состояние:</strong> {{ condition|title }}</p>
+                <div class="result-details">
+                    <div class="car-info">
+                        <div>
+                            <div class="info-label">Make</div>
+                            <div class="info-value">Nissan</div>
+                        </div>
+                        <div>
+                            <div class="info-label">Model</div>
+                            <div class="info-value">350Z</div>
+                        </div>
+                        <div>
+                            <div class="info-label">Generation</div>
+                            <div class="info-value">2001 - 2009</div>
+                        </div>
+                        <div>
+                            <div class="info-label">Car Part Needed</div>
+                            <div class="info-value">Диск Сцепления</div>
+                        </div>
+                        <div>
+                            <div class="info-label">VIN Number</div>
+                            <div class="info-value">SKET00001267</div>
+                        </div>
+                    </div>
                 </div>
             </div>
-        {% else %}
-            <!-- Sample result items for demonstration when no search is performed -->
-        {% endif %}
+            <div class="result-content">
+                <div class="part-image">
+                    <img src="{% static 'images/clutch-disc.jpg' %}" alt="Clutch Disc">
+                </div>
+                <div class="part-details">
+                    <h3 class="part-title">Диск Сцепления</h3>
+                    <div class="part-info">
+                        <div>Nissan 350Z, 1 Generation</div>
+                        <div>
+                            <span class="status-tag"><i class="fas fa-check-circle"></i> Новое</span>
+                            <span class="status-tag"><i class="fas fa-check-circle"></i> Подобрано по VIN</span>
+                        </div>
+                    </div>
+                    <div class="location">Город: Алматы, Байнкульская 57/1, ТЦ CARCITY 1 Ярус 118 Бутик</div>
+                </div>
+                <div class="price">Цена: 47.000 тенге</div>
+            </div>
+            <div style="padding: 0 15px 15px; text-align: right;">
+                <button class="contact-btn">Связаться с продавцом</button>
+            </div>
+        </div>
+        
+        <!-- Result Item 2 -->
+        <div class="result-item">
+            <div class="result-header">
+                <div class="car-brand-logo">
+                    <img src="{% static 'images/nissan-logo.png' %}" alt="Nissan" width="30" height="30">
+                </div>
+                <div class="result-details">
+                    <div class="car-info">
+                        <div>
+                            <div class="info-label">Make</div>
+                            <div class="info-value">Nissan</div>
+                        </div>
+                        <div>
+                            <div class="info-label">Model</div>
+                            <div class="info-value">350Z</div>
+                        </div>
+                        <div>
+                            <div class="info-label">Generation</div>
+                            <div class="info-value">2001 - 2009</div>
+                        </div>
+                        <div>
+                            <div class="info-label">Car Part Needed</div>
+                            <div class="info-value">Диск Сцепления</div>
+                        </div>
+                        <div>
+                            <div class="info-label">VIN Number</div>
+                            <div class="info-value">SKET00001267</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="result-content">
+                <div class="part-image">
+                    <img src="{% static 'images/clutch-disc.jpg' %}" alt="Clutch Disc">
+                </div>
+                <div class="part-details">
+                    <h3 class="part-title">Диск Сцепления</h3>
+                    <div class="part-info">
+                        <div>Nissan 350Z, 1 Generation</div>
+                        <div>
+                            <span class="status-tag"><i class="fas fa-check-circle"></i> Новое</span>
+                            <span class="status-tag"><i class="fas fa-check-circle"></i> Подобрано по VIN</span>
+                        </div>
+                    </div>
+                    <div class="location">Город: Алматы, Байнкульская 57/1, ТЦ CARCITY 1 Ярус 118 Бутик</div>
+                </div>
+                <div class="price">Цена: 34.000 тенге</div>
+            </div>
+            <div style="padding: 0 15px 15px; text-align: right;">
+                <button class="contact-btn">Связаться с продавцом</button>
+            </div>
+        </div>
+        
+        <!-- Result Item 3 - Toyota -->
+        <div class="result-item">
+            <div class="result-header">
+                <div class="car-brand-logo">
+                    <img src="{% static 'images/toyota-logo.png' %}" alt="Toyota" width="30" height="30">
+                </div>
+                <div class="result-details">
+                    <div class="car-info">
+                        <div>
+                            <div class="info-label">Make</div>
+                            <div class="info-value">Toyota</div>
+                        </div>
+                        <div>
+                            <div class="info-label">Model</div>
+                            <div class="info-value">Altezza</div>
+                        </div>
+                        <div>
+                            <div class="info-label">Generation</div>
+                            <div class="info-value">1998 - 2004</div>
+                        </div>
+                        <div>
+                            <div class="info-label">Car Part Needed</div>
+                            <div class="info-value">МКПП j160</div>
+                        </div>
+                        <div>
+                            <div class="info-label">VIN Number</div>
+                            <div class="info-value">SKET00001267</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="result-content">
+                <div class="part-image">
+                    <img src="{% static 'images/transmission.jpg' %}" alt="Transmission">
+                </div>
+                <div class="part-details">
+                    <h3 class="part-title">Мкпп J160 в сборе</h3>
+                    <div class="part-info">
+                        <div>Nissan 350Z, 1 Generation</div>
+                        <div>
+                            <span class="status-tag" style="background-color: rgba(255, 165, 0, 0.2); color: orange;"><i class="fas fa-exclamation-circle"></i> Бывшая в употреблении</span>
+                            <span class="status-tag"><i class="fas fa-check-circle"></i> Подобрано по VIN</span>
+                        </div>
+                    </div>
+                    <div class="location">Город: Алматы, Сельская 73 (Анаит)</div>
+                </div>
+                <div class="price">Цена: 169.000 тенге</div>
+            </div>
+            <div style="padding: 0 15px 15px; text-align: right;">
+                <button class="contact-btn">Связаться с продавцом</button>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}

@@ -75,23 +75,145 @@
             </div>
         </div>
         
-        <div class="form-row">
+        <div class="toggle-container">
             <div class="toggle-group">
                 <div class="toggle-btn active" id="new-btn">New</div>
                 <div class="toggle-btn" id="used-btn">Used</div>
-                <input type="hidden" name="condition" id="condition" value="new">
+                <input type="hidden" name="condition" id="condition-input" value="new">
             </div>
         </div>
         
-        <button type="submit" class="search-btn">Ready</button>
+        <div class="button-container">
+            <button type="submit" class="search-btn">Ready</button>
+        </div>
     </form>
+    
+    <!-- Car Requests Section -->
+    <div class="car-requests-section">
+        <h2>Запросы на запчасти</h2>
+        
+        {% if search_requests %}
+            <div class="requests-grid">
+                {% for request in search_requests %}
+                    <div class="request-card">
+                        <div class="request-header">
+                            <div class="car-brand">
+                                {% if request.make|lower == 'nissan' %}
+                                    <img src="{% static 'images/nissan-logo.png' %}" alt="Nissan" width="30" height="30">
+                                {% elif request.make|lower == 'toyota' %}
+                                    <img src="{% static 'images/toyota-logo.png' %}" alt="Toyota" width="30" height="30">
+                                {% else %}
+                                    <i class="fas fa-car" style="color: #333;"></i>
+                                {% endif %}
+                                <span>{{ request.make }} {{ request.model }}</span>
+                            </div>
+                            <div class="request-date">{{ request.created_at|date:"d.m.Y" }}</div>
+                        </div>
+                        <div class="request-body">
+                            <h3>{{ request.search }}</h3>
+                            {% if request.generation %}
+                            <div class="request-detail">
+                                <span class="detail-label">Поколение:</span>
+                                <span class="detail-value">{{ request.generation }}</span>
+                            </div>
+                            {% endif %}
+                            <div class="request-detail">
+                                <span class="detail-label">Состояние:</span>
+                                <span class="detail-value">{{ request.condition|title }}</span>
+                            </div>
+                            {% if request.city %}
+                            <div class="request-detail">
+                                <span class="detail-label">Город:</span>
+                                <span class="detail-value">{{ request.city }}</span>
+                            </div>
+                            {% endif %}
+                            {% if request.vin %}
+                            <div class="request-detail">
+                                <span class="detail-label">VIN:</span>
+                                <span class="detail-value">{{ request.vin }}</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="request-footer">
+                            <a href="{% url 'respond' request.id %}" class="respond-btn">Ответить на заявку</a>
+                            <form method="post" action="{% url 'delete_search' request.id %}" style="display: inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="delete-btn" onclick="return confirm('Вы уверены, что хотите удалить этот запрос?')">Удалить</button>
+                            </form>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="no-requests">
+                <p>Нет активных запросов на запчасти.</p>
+            </div>
+        {% endif %}
+        
+        {% if seller_requests %}
+            <h2 style="margin-top: 30px;">Предложения продавцов</h2>
+            <div class="requests-grid">
+                {% for request in seller_requests %}
+                    <div class="request-card">
+                        <div class="request-header">
+                            <div class="car-brand">
+                                {% if request.make|lower == 'nissan' %}
+                                    <img src="{% static 'images/nissan-logo.png' %}" alt="Nissan" width="30" height="30">
+                                {% elif request.make|lower == 'toyota' %}
+                                    <img src="{% static 'images/toyota-logo.png' %}" alt="Toyota" width="30" height="30">
+                                {% else %}
+                                    <i class="fas fa-car" style="color: #333;"></i>
+                                {% endif %}
+                                <span>{{ request.make }} {{ request.model }}</span>
+                            </div>
+                            <div class="request-date">{{ request.created_at|date:"d.m.Y" }}</div>
+                        </div>
+                        <div class="request-body">
+                            <h3>{{ request.part_name }}</h3>
+                            {% if request.generation %}
+                            <div class="request-detail">
+                                <span class="detail-label">Поколение:</span>
+                                <span class="detail-value">{{ request.generation }}</span>
+                            </div>
+                            {% endif %}
+                            {% if request.description %}
+                            <div class="request-detail">
+                                <span class="detail-label">Описание:</span>
+                                <span class="detail-value">{{ request.description }}</span>
+                            </div>
+                            {% endif %}
+                            {% if request.city %}
+                            <div class="request-detail">
+                                <span class="detail-label">Город:</span>
+                                <span class="detail-value">{{ request.city }}</span>
+                            </div>
+                            {% endif %}
+                            {% if request.price %}
+                            <div class="request-detail price-detail">
+                                <span class="detail-label">Цена:</span>
+                                <span class="detail-value">{{ request.price }} тенге</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="request-footer">
+                            <a href="{% url 'respond' request.id %}" class="respond-btn">Связаться с продавцом</a>
+                            <form method="post" action="{% url 'delete_seller_request' request.id %}" style="display: inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="delete-btn" onclick="return confirm('Вы уверены, что хотите удалить это предложение?')">Удалить</button>
+                            </form>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
 </div>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const newBtn = document.getElementById('new-btn');
         const usedBtn = document.getElementById('used-btn');
-        const conditionInput = document.getElementById('condition');
+        const conditionInput = document.getElementById('condition-input');
         
         newBtn.addEventListener('click', function() {
             newBtn.classList.add('active');

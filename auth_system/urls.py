@@ -17,13 +17,10 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path, include
-from django.shortcuts import render
-
-def home_view(request):
-    return render(request, 'users/home.html', {'user': request.user})
+from django.shortcuts import redirect
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("", home_view, name="home"),
+    path("", lambda request: redirect('users/'), name="root"),
     path("users/", include("users.urls")),
 ]

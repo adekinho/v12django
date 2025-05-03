@@ -28,7 +28,7 @@ DEBUG = True
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 
 # CSRF settings
-CSRF_TRUSTED_ORIGINS = ['http://127.0.0.1:8000', 'http://127.0.0.1:55302', 'http://localhost:8000', 'http://127.0.0.1:62894']
+CSRF_TRUSTED_ORIGINS = ['http://127.0.0.1:8000', 'http://127.0.0.1:55302', 'http://localhost:8000', 'http://127.0.0.1:62894', 'http://127.0.0.1:55720', 'http://127.0.0.1:60451']
 
 # Application definition
 

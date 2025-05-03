@@ -221,51 +221,74 @@
         <div class="request-header">
             <div class="request-title">
                 <div class="car-brand-logo">
-                    {% if seller_request.make|lower == 'nissan' %}
-                        <img src="{% static 'images/nissan-logo.png' %}" alt="Nissan" width="30" height="30">
-                    {% elif seller_request.make|lower == 'toyota' %}
-                        <img src="{% static 'images/toyota-logo.png' %}" alt="Toyota" width="30" height="30">
+                    {% if request_type == 'seller' %}
+                        {% if request.make|lower == 'nissan' %}
+                            <img src="{% static 'images/nissan-logo.png' %}" alt="Nissan" width="30" height="30">
+                        {% elif request.make|lower == 'toyota' %}
+                            <img src="{% static 'images/toyota-logo.png' %}" alt="Toyota" width="30" height="30">
+                        {% else %}
+                            <i class="fas fa-car" style="color: #333;"></i>
+                        {% endif %}
                     {% else %}
-                        <i class="fas fa-car" style="color: #333;"></i>
+                        {% if request.make|lower == 'nissan' %}
+                            <img src="{% static 'images/nissan-logo.png' %}" alt="Nissan" width="30" height="30">
+                        {% elif request.make|lower == 'toyota' %}
+                            <img src="{% static 'images/toyota-logo.png' %}" alt="Toyota" width="30" height="30">
+                        {% else %}
+                            <i class="fas fa-car" style="color: #333;"></i>
+                        {% endif %}
                     {% endif %}
                 </div>
-                {{ seller_request.part_name }}
+                {% if request_type == 'seller' %}
+                    {{ request.part_name }}
+                {% else %}
+                    {{ request.search }}
+                {% endif %}
             </div>
         </div>
         <div class="request-content">
             <div class="car-info">
                 <div class="info-group">
                     <div class="info-label">Марка</div>
-                    <div class="info-value">{{ seller_request.make }}</div>
+                    <div class="info-value">{{ request.make }}</div>
                 </div>
                 <div class="info-group">
                     <div class="info-label">Модель</div>
-                    <div class="info-value">{{ seller_request.model }}</div>
+                    <div class="info-value">{{ request.model }}</div>
                 </div>
-                {% if seller_request.generation %}
+                {% if request.generation %}
                 <div class="info-group">
                     <div class="info-label">Поколение</div>
-                    <div class="info-value">{{ seller_request.generation }}</div>
+                    <div class="info-value">{{ request.generation }}</div>
                 </div>
                 {% endif %}
                 <div class="info-group">
                     <div class="info-label">Город</div>
-                    <div class="info-value">{{ seller_request.city }}</div>
+                    <div class="info-value">{{ request.city }}</div>
                 </div>
-                {% if seller_request.price %}
+                {% if request_type == 'search' and request.vin %}
+                <div class="info-group">
+                    <div class="info-label">VIN</div>
+                    <div class="info-value">{{ request.vin }}</div>
+                </div>
+                {% endif %}
+                {% if request_type == 'search' %}
+                <div class="info-group">
+                    <div class="info-label">Состояние</div>
+                    <div class="info-value">{{ request.condition|title }}</div>
+                </div>
+                {% endif %}
+                {% if request_type == 'seller' %}
+                <div class="info-group">
+                    <div class="info-label">Описание</div>
+                    <div class="info-value">{{ request.description }}</div>
+                </div>
                 <div class="info-group">
                     <div class="info-label">Цена</div>
-                    <div class="info-value">{{ seller_request.price }} ₸</div>
+                    <div class="info-value price">{{ request.price }} ₸</div>
                 </div>
                 {% endif %}
             </div>
-            
-            {% if seller_request.description %}
-            <div style="color: #ccc; margin-bottom: 20px;">
-                <div style="color: #999; font-size: 12px; text-transform: uppercase; margin-bottom: 4px;">Описание</div>
-                {{ seller_request.description }}
-            </div>
-            {% endif %}
         </div>
     </div>
     
@@ -306,7 +329,7 @@
                 <input type="number" class="form-control" id="price" name="price" required>
             </div>
             
-            <button type="submit" class="submit-button">Связаться с покупателем</button>
+            <button type="submit" class="submit-button">Отправить</button>
         </form>
     </div>
 </div>

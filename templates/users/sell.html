@@ -216,6 +216,18 @@
     .status-tag i {
         margin-right: 4px;
     }
+    
+    .request-body {
+        padding: 15px;
+    }
+    
+    .detail-item {
+        margin-bottom: 10px;
+    }
+    
+    .request-actions {
+        margin-top: 20px;
+    }
 </style>
 {% endblock %}
 
@@ -280,12 +292,13 @@
     </div>
     
     <div class="seller-requests">
-        {% if seller_requests %}
-            {% for request in seller_requests %}
+        <h2 style="color: white; margin-bottom: 20px;">Запросы на поиск запчастей</h2>
+        {% if search_requests %}
+            {% for request in search_requests %}
                 <div class="request-card">
                     <div class="request-header">
-                        <div style="display: flex; align-items: center;">
-                            <div class="car-brand-logo">
+                        <div class="car-brand-logo">
+                            {% if request.make %}
                                 {% if request.make|lower == 'nissan' %}
                                     <img src="{% static 'images/nissan-logo.png' %}" alt="Nissan" width="30" height="30">
                                 {% elif request.make|lower == 'toyota' %}
@@ -293,54 +306,52 @@
                                 {% else %}
                                     <i class="fas fa-car" style="color: #333;"></i>
                                 {% endif %}
-                            </div>
-                            <h3 class="request-title">{{ request.part_name }}</h3>
+                            {% else %}
+                                <i class="fas fa-car" style="color: #333;"></i>
+                            {% endif %}
                         </div>
-                        <span class="request-date">{{ request.created_at|date:"d.m.Y" }}</span>
+                        <div class="request-title">
+                            <h3>{{ request.search }}</h3>
+                            {% if request.make or request.model %}
+                                <p>{{ request.make }} {{ request.model }}</p>
+                            {% endif %}
+                        </div>
+                        <div class="request-date">{{ request.created_at|date:"d.m.Y" }}</div>
                     </div>
-                    <div class="request-content">
+                    <div class="request-body">
                         <div class="request-details">
-                            <div class="request-info">
-                                <div class="info-group">
-                                    <div class="info-label">Город</div>
-                                    <div class="info-value">{{ request.city }}</div>
-                                </div>
-                                <div class="info-group">
-                                    <div class="info-label">Марка</div>
-                                    <div class="info-value">{{ request.make }}</div>
-                                </div>
-                                <div class="info-group">
-                                    <div class="info-label">Модель</div>
-                                    <div class="info-value">{{ request.model }}</div>
-                                </div>
-                                {% if request.generation %}
-                                <div class="info-group">
-                                    <div class="info-label">Поколение</div>
-                                    <div class="info-value">{{ request.generation }}</div>
-                                </div>
-                                {% endif %}
-                            </div>
-                            
-                            {% if request.description %}
-                            <div class="request-description">
-                                {{ request.description }}
+                            {% if request.generation %}
+                            <div class="detail-item">
+                                <div class="info-label">Поколение</div>
+                                <div class="info-value">{{ request.generation }}</div>
                             </div>
                             {% endif %}
-                            
-                            {% if request.price %}
-                            <div class="request-price">
-                                {{ request.price }} ₸
+                            <div class="detail-item">
+                                <div class="info-label">Состояние</div>
+                                <div class="info-value">{{ request.condition|title }}</div>
+                            </div>
+                            {% if request.vin %}
+                            <div class="detail-item">
+                                <div class="info-label">VIN</div>
+                                <div class="info-value">{{ request.vin }}</div>
+                            </div>
+                            {% endif %}
+                            {% if request.city %}
+                            <div class="detail-item">
+                                <div class="info-label">Город</div>
+                                <div class="info-value">{{ request.city }}</div>
                             </div>
                             {% endif %}
                         </div>
-                        <a href="{% url 'respond' request.id %}" class="contact-button">Ответить на запрос</a>
+                        <div class="request-actions">
+                            <a href="{% url 'respond' request.id %}" class="contact-button">Ответить на заявку</a>
+                        </div>
                     </div>
                 </div>
             {% endfor %}
         {% else %}
             <div class="no-requests">
-                <h3>Нет запросов на продажу</h3>
-                <p>В данный момент нет активных запросов, соответствующих вашим критериям.</p>
+                <p>Нет активных запросов на поиск запчастей.</p>
             </div>
         {% endif %}
     </div>
