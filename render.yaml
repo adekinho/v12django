@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: v12django
+    runtime: python
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn auth_system.wsgi:application"
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: SECRET_KEY
+        generateValue: true
+      - key: PYTHON_VERSION
+        value: 3.12.0
+      - key: WEB_CONCURRENCY
+        value: 4
+      - key: DEBUG
+        value: False
