@@ -4,21 +4,29 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
-from .forms import UserRegisterForm, UserLoginForm
-from .models import SearchRequest, UserActivity, UserProfile, SellerRequest, RequestResponse
+from .forms import UserRegisterForm, UserLoginForm, UserProfileForm, SearchRequestForm, RequestResponseForm
+from .models import SearchRequest, UserActivity, UserProfile, SellerRequest, RequestResponse, Message
 
 # Create your views here.
 
 def home_view(request):
     # Get all active search requests from all users
-    search_requests = SearchRequest.objects.filter(active=True).order_by('-created_at')[:5]
+    # If user is authenticated, exclude their own requests
+    if request.user.is_authenticated:
+        search_requests = SearchRequest.objects.filter(active=True).exclude(user=request.user).order_by('-created_at')[:5]
+    else:
+        search_requests = SearchRequest.objects.filter(active=True).order_by('-created_at')[:5]
     
     # Get all seller requests
     seller_requests = SellerRequest.objects.all().order_by('-created_at')[:5]
     
+    # Initialize the search request form
+    form = SearchRequestForm()
+    
     context = {
         'search_requests': search_requests,
         'seller_requests': seller_requests,
+        'form': form,
     }
     
     return render(request, 'users/home.html', context)
@@ -110,59 +118,124 @@ def logout_view(request):
 
 @login_required
 def profile_view(request):
-    # Get user's search history
-    search_history = SearchRequest.objects.filter(user=request.user).order_by('-created_at')[:10]
+    # Get or create user profile
+    profile, created = UserProfile.objects.get_or_create(user=request.user)
     
-    # Get user's activities
-    activities = UserActivity.objects.filter(user=request.user).order_by('-created_at')[:15]
+    if request.method == 'POST':
+        form = UserProfileForm(request.POST, request.FILES, instance=profile)
+        if form.is_valid():
+            form.save()
+            
+            # Log activity
+            UserActivity.objects.create(
+                user=request.user,
+                activity_type='profile_update',
+                description='Updated profile information'
+            )
+            
+            messages.success(request, 'Ваш профиль был успешно обновлен!')
+            return redirect('profile')
+    else:
+        form = UserProfileForm(instance=profile)
     
     context = {
-        'search_history': search_history,
-        'activities': activities,
+        'form': form,
+        'user_profile': profile,
     }
     
     return render(request, 'users/profile.html', context)
 
 @login_required
 def results_view(request):
-    # Get search parameters from the form
-    city = request.GET.get('city', '')
-    vin = request.GET.get('vin', '')
-    make = request.GET.get('make', '')
-    model = request.GET.get('model', '')
-    generation = request.GET.get('generation', '')
-    search = request.GET.get('search', '')
-    condition = request.GET.get('condition', 'new')
+    # Initialize variables to avoid UnboundLocalError
+    city = ''
+    vin = ''
+    make = ''
+    model = ''
+    generation = ''
+    search = ''
+    condition = 'new'
     
     # Get all search requests for the logged-in user
     search_requests = SearchRequest.objects.filter(user=request.user).order_by('-created_at')
     
     # Get all responses to the user's search requests
+    # Use select_related to efficiently fetch related search_request data
     responses = RequestResponse.objects.filter(
         search_request__user=request.user
-    ).order_by('-created_at')
+    ).select_related('search_request', 'user').order_by('-created_at')
     
-    # If form is submitted with search parameters, create a new search request
-    if search:
-        # Create a new search request
-        search_request = SearchRequest.objects.create(
-            user=request.user,
-            city=city,
-            vin=vin,
-            make=make,
-            model=model,
-            generation=generation,
-            search=search,
-            condition=condition,
-            active=True
-        )
+    # Handle form submission with image upload
+    if request.method == 'POST':
+        form = SearchRequestForm(request.POST, request.FILES)
+        if form.is_valid():
+            # Create a new search request but don't save to DB yet
+            search_request = form.save(commit=False)
+            search_request.user = request.user
+            search_request.active = True
+            
+            # If condition is 'any', set it to empty string to match all conditions
+            if search_request.condition == 'any':
+                search_request.condition = ''
+                
+            search_request.save()
+            
+            # Log activity
+            UserActivity.objects.create(
+                user=request.user,
+                activity_type='search',
+                description=f"Searched for {search_request.search} - {search_request.make} {search_request.model}"
+            )
+            
+            messages.success(request, 'Запрос успешно создан!')
+    else:
+        # Handle GET request with search parameters
+        city = request.GET.get('city', '')
+        vin = request.GET.get('vin', '')
+        make = request.GET.get('make', '')
+        model = request.GET.get('model', '')
+        generation = request.GET.get('generation', '')
+        search = request.GET.get('search', '')
+        condition = request.GET.get('condition', 'new')
         
-        # Log activity
-        UserActivity.objects.create(
-            user=request.user,
-            activity_type='search',
-            description=f"Searched for {search} - {make} {model}"
-        )
+        # If form is submitted with search parameters, create a new search request
+        if search:
+            # Create initial data for the form
+            initial_data = {
+                'city': city,
+                'vin': vin,
+                'make': make,
+                'model': model,
+                'generation': generation,
+                'search': search,
+                'condition': condition
+            }
+            form = SearchRequestForm(initial=initial_data)
+            
+            # Create a new search request
+            # If condition is 'any', set it to empty string to match all conditions
+            condition_value = '' if condition == 'any' else condition
+            
+            search_request = SearchRequest.objects.create(
+                user=request.user,
+                city=city,
+                vin=vin,
+                make=make,
+                model=model,
+                generation=generation,
+                search=search,
+                condition=condition_value,
+                active=True
+            )
+            
+            # Log activity
+            UserActivity.objects.create(
+                user=request.user,
+                activity_type='search',
+                description=f"Searched for {search} - {make} {model}"
+            )
+        else:
+            form = SearchRequestForm()
     
     # Prepare context
     context = {
@@ -174,6 +247,7 @@ def results_view(request):
         'search': search,
         'condition': condition,
         'search_requests': search_requests,
+        'active_searches': search_requests.filter(active=True),  # Add active searches explicitly
         'responses': responses,
     }
     
@@ -190,8 +264,8 @@ def sell_view(request):
     # Get all seller requests
     seller_requests = SellerRequest.objects.all().order_by('-created_at')
     
-    # Get all active search requests from all users
-    search_requests = SearchRequest.objects.filter(active=True).order_by('-created_at')
+    # Get all active search requests from all users EXCEPT the current user
+    search_requests = SearchRequest.objects.filter(active=True).exclude(user=request.user).order_by('-created_at')
     
     # Apply filters if provided
     if city_filter:
@@ -250,6 +324,7 @@ def respond_view(request, request_id):
         is_new = request.POST.get('is_new', '') == 'on'
         city = request.POST.get('city', '')
         address = request.POST.get('address', '')
+        image = request.FILES.get('image', None)
         
         # Validate required fields
         if price and city and address:
@@ -265,7 +340,8 @@ def respond_view(request, request_id):
                         is_vin_matched=is_vin_matched,
                         is_new=is_new,
                         city=city,
-                        address=address
+                        address=address,
+                        image=image
                     )
                 else:  # search request
                     response = RequestResponse.objects.create(
@@ -276,7 +352,8 @@ def respond_view(request, request_id):
                         is_vin_matched=is_vin_matched,
                         is_new=is_new,
                         city=city,
-                        address=address
+                        address=address,
+                        image=image
                     )
                 
                 # Log activity

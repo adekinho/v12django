@@ -463,6 +463,7 @@
     <div class="my-searches">
         <div class="my-searches-title">
             <h2>Мои активные запросы</h2>
+            <p>Здесь отображаются все ваши запросы на поиск запчастей</p>
         </div>
         
         {% for search in active_searches %}
@@ -526,6 +527,10 @@
     
     <div class="results-list">
         {% if responses %}
+            <div class="responses-header" style="margin-bottom: 20px;">
+                <h2 style="color: white; margin-bottom: 10px;">Ответы на вашу заявку</h2>
+                <p style="color: #ccc;">Здесь отображаются все ответы продавцов на ваши запросы</p>
+            </div>
             {% for response in responses %}
                 <div class="result-item">
                     <div class="result-header">
@@ -573,7 +578,11 @@
                     </div>
                     <div class="result-content">
                         <div class="part-image">
-                            {% if response.search_request.search|lower == 'диск сцепления' %}
+                            {% if response.image %}
+                                <img src="{{ response.image.url }}" alt="Фото запчасти" width="100">
+                            {% elif response.search_request.image %}
+                                <img src="{{ response.search_request.image.url }}" alt="Фото запроса" width="100">
+                            {% elif response.search_request.search|lower == 'диск сцепления' %}
                                 <img src="{% static 'images/clutch-disc.jpg' %}" alt="Clutch Disc" width="100">
                             {% else %}
                                 <img src="{% static 'images/transmission.jpg' %}" alt="Transmission" width="100">
@@ -600,7 +609,11 @@
                         <div class="part-price-contact">
                             <div class="price">Цена: {{ response.price }} тенге</div>
                             <div class="action-buttons">
-                                <button class="contact-button">Связаться с продавцом</button>
+                                {% if response.search_request.user == user %}
+                                    <a href="{% url 'contact_seller' response.id %}" class="contact-button">Связаться с продавцом</a>
+                                {% else %}
+                                    <button class="contact-button">Связаться с продавцом</button>
+                                {% endif %}
                                 <form method="post" action="{% url 'delete_response' response.id %}" style="display: inline;">
                                     {% csrf_token %}
                                     <button type="submit" class="delete-btn" onclick="return confirm('Вы уверены, что хотите удалить этот ответ?')">Удалить</button>

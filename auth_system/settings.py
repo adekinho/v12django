@@ -28,7 +28,7 @@ DEBUG = True
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 
 # CSRF settings
-CSRF_TRUSTED_ORIGINS = ['http://127.0.0.1:8000', 'http://127.0.0.1:55302', 'http://localhost:8000', 'http://127.0.0.1:62894', 'http://127.0.0.1:55720', 'http://127.0.0.1:60451']
+CSRF_TRUSTED_ORIGINS = ['http://127.0.0.1:8000', 'http://127.0.0.1:55302', 'http://localhost:8000', 'http://127.0.0.1:62894', 'http://127.0.0.1:55720', 'http://127.0.0.1:60451', 'http://127.0.0.1:55314', 'http://127.0.0.1:62409', 'http://127.0.0.1:8080', 'http://localhost:8080', 'http://127.0.0.1:61399']
 
 # Application definition
 
@@ -45,8 +45,11 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.locale.LocaleMiddleware",  # Add locale middleware for translations
     "django.middleware.common.CommonMiddleware",
-    "django.middleware.csrf.CsrfViewMiddleware",
+    # Replace the default CSRF middleware with our custom one
+    # "django.middleware.csrf.CsrfViewMiddleware",
+    "auth_system.middleware.CustomCsrfMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
@@ -61,9 +64,11 @@ TEMPLATES = [
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
+                "django.template.context_processors.debug",
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "users.context_processors.user_profile",
             ],
         },
     },
@@ -105,11 +110,18 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
-LANGUAGE_CODE = "en-us"
+LANGUAGE_CODE = "ru"
 
 TIME_ZONE = "UTC"
 
 USE_I18N = True
+USE_L10N = True
+
+LANGUAGES = [
+    ('ru', 'Russian'),
+]
+
+LOCALE_PATHS = [BASE_DIR / 'locale']
 
 USE_TZ = True
 
@@ -119,6 +131,10 @@ USE_TZ = True
 
 STATIC_URL = "static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
+
+# Media files (User uploaded files)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

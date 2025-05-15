@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Диаграмма Плавательных Дорожек</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .mermaid {
+            overflow: auto;
+        }
+        .controls {
+            margin: 20px 0;
+            text-align: center;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        select {
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Диаграмма Плавательных Дорожек</h1>
+        
+        <div class="controls">
+            <select id="diagramSelector">
+                <option value="process">Процесс Обработки Заказа</option>
+                <option value="support">Процесс Поддержки Клиентов</option>
+                <option value="development">Процесс Разработки Программного Обеспечения</option>
+            </select>
+            <button onclick="changeDiagram()">Изменить Диаграмму</button>
+        </div>
+        
+        <div class="mermaid" id="mermaidDiv">
+            %%{init: {'theme': 'default', 'themeVariables': { 'primaryColor': '#5D7EA7', 'primaryTextColor': '#fff', 'primaryBorderColor': '#5D7EA7', 'lineColor': '#5D7EA7', 'secondaryColor': '#006100', 'tertiaryColor': '#fff' }}}%%
+            flowchart TD
+                subgraph Клиент
+                    A[Отправка запроса] --> B[Получение ответа]
+                    B --> C[Подтверждение заказа]
+                end
+                subgraph Менеджер
+                    D[Обработка запроса] --> E[Формирование предложения]
+                    E --> F[Отправка предложения]
+                end
+                subgraph Склад
+                    G[Проверка наличия] --> H[Резервирование товара]
+                    H --> I[Подготовка к отправке]
+                end
+                subgraph Доставка
+                    J[Получение заказа] --> K[Планирование маршрута]
+                    K --> L[Доставка клиенту]
+                end
+                
+                A --> D
+                D --> G
+                G --> E
+                F --> B
+                C --> H
+                I --> J
+        </div>
+    </div>
+
+    <script>
+        // Initialize mermaid
+        mermaid.initialize({ startOnLoad: true });
+        
+        // Define different diagrams
+        const diagrams = {
+            process: `%%{init: {'theme': 'default', 'themeVariables': { 'primaryColor': '#5D7EA7', 'primaryTextColor': '#fff', 'primaryBorderColor': '#5D7EA7', 'lineColor': '#5D7EA7', 'secondaryColor': '#006100', 'tertiaryColor': '#fff' }}}%%
+            flowchart TD
+                subgraph Клиент
+                    A[Отправка запроса] --> B[Получение ответа]
+                    B --> C[Подтверждение заказа]
+                end
+                subgraph Менеджер
+                    D[Обработка запроса] --> E[Формирование предложения]
+                    E --> F[Отправка предложения]
+                end
+                subgraph Склад
+                    G[Проверка наличия] --> H[Резервирование товара]
+                    H --> I[Подготовка к отправке]
+                end
+                subgraph Доставка
+                    J[Получение заказа] --> K[Планирование маршрута]
+                    K --> L[Доставка клиенту]
+                end
+                
+                A --> D
+                D --> G
+                G --> E
+                F --> B
+                C --> H
+                I --> J`,
+            
+            support: `%%{init: {'theme': 'default', 'themeVariables': { 'primaryColor': '#6D598A', 'primaryTextColor': '#fff', 'primaryBorderColor': '#6D598A', 'lineColor': '#6D598A', 'secondaryColor': '#006100', 'tertiaryColor': '#fff' }}}%%
+            flowchart TD
+                subgraph Клиент
+                    A[Обращение в поддержку] --> B[Получение решения]
+                    B --> C[Оценка качества]
+                end
+                subgraph Первая линия поддержки
+                    D[Регистрация обращения] --> E[Анализ проблемы]
+                    E --> F[Решение или эскалация]
+                end
+                subgraph Вторая линия поддержки
+                    G[Получение сложного запроса] --> H[Детальный анализ]
+                    H --> I[Предоставление решения]
+                end
+                subgraph Разработка
+                    J[Получение отчета о баге] --> K[Исправление ошибки]
+                    K --> L[Выпуск обновления]
+                end
+                
+                A --> D
+                F --> B
+                F --> G
+                I --> B
+                G --> J
+                L --> I`,
+            
+            development: `%%{init: {'theme': 'default', 'themeVariables': { 'primaryColor': '#3D7068', 'primaryTextColor': '#fff', 'primaryBorderColor': '#3D7068', 'lineColor': '#3D7068', 'secondaryColor': '#006100', 'tertiaryColor': '#fff' }}}%%
+            flowchart TD
+                subgraph Заказчик
+                    A[Формирование требований] --> B[Утверждение прототипа]
+                    B --> C[Приемка результата]
+                end
+                subgraph Аналитик
+                    D[Анализ требований] --> E[Создание спецификаций]
+                    E --> F[Разработка прототипа]
+                end
+                subgraph Разработчик
+                    G[Получение спецификаций] --> H[Разработка функционала]
+                    H --> I[Интеграция компонентов]
+                end
+                subgraph Тестировщик
+                    J[Разработка тестов] --> K[Выполнение тестирования]
+                    K --> L[Отчет о результатах]
+                end
+                
+                A --> D
+                F --> B
+                E --> G
+                I --> J
+                L --> C
+                L --> H`
+        };
+        
+        function changeDiagram() {
+            const selectedDiagram = document.getElementById('diagramSelector').value;
+            const mermaidDiv = document.getElementById('mermaidDiv');
+            
+            mermaidDiv.innerHTML = diagrams[selectedDiagram];
+            mermaid.init(undefined, mermaidDiv);
+        }
+    </script>
+</body>
+</html>

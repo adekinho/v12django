@@ -1,7 +1,8 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load i18n %}
 
-{% block title %}Register{% endblock %}
+{% block title %}{% trans "Регистрация" %}{% endblock %}
 
 {% block content %}
 <div class="auth-container">
@@ -21,24 +22,24 @@
         {% csrf_token %}
         
         <div class="form-group">
-            <input type="email" name="email" placeholder="Email" required>
+            <input type="email" name="email" placeholder="{% trans "Электронная почта" %}" required>
         </div>
         
         <div class="form-group">
-            <input type="password" name="password" placeholder="Create Password" required>
+            <input type="password" name="password" placeholder="{% trans "Создать пароль" %}" required>
         </div>
         
         <div class="password-requirements">
             <ul>
-                <li>Your password can't be too similar to your other personal information.</li>
-                <li>Your password must contain at least 8 characters.</li>
-                <li>Your password can't be a commonly used password.</li>
-                <li>Your password can't be entirely numeric.</li>
+                <li>{% trans "Ваш пароль не должен быть похож на другую личную информацию." %}</li>
+                <li>{% trans "Ваш пароль должен содержать не менее 8 символов." %}</li>
+                <li>{% trans "Ваш пароль не должен быть часто используемым паролем." %}</li>
+                <li>{% trans "Ваш пароль не может состоять только из цифр." %}</li>
             </ul>
         </div>
         
         <div class="form-group">
-            <input type="password" name="password2" placeholder="Repeat Password" required>
+            <input type="password" name="password2" placeholder="{% trans "Повторите пароль" %}" required>
         </div>
         
         <div class="captcha-container">
@@ -46,12 +47,12 @@
         </div>
         
         <div class="form-group">
-            <button type="submit" class="btn">Ready</button>
+            <button type="submit" class="btn">{% trans "Готово" %}</button>
         </div>
     </form>
     
     <div class="links">
-        <p>Already have an account? <a href="{% url 'login' %}">Login</a></p>
+        <p>{% trans "Уже есть аккаунт?" %} <a href="{% url 'login' %}">{% trans "Войти" %}</a></p>
     </div>
 </div>
 {% endblock %}

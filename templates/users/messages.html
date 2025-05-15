@@ -1,0 +1,364 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Сообщения{% endblock %}
+
+{% block extra_css %}
+<style>
+    .messages-container {
+        width: 100%;
+        max-width: 980px;
+        margin: 130px auto 30px;
+        padding: 0 15px;
+    }
+    
+    .messages-header {
+        margin-bottom: 30px;
+    }
+    
+    .messages-header h1 {
+        color: white;
+        margin-bottom: 10px;
+    }
+    
+    .messages-header p {
+        color: #ccc;
+    }
+    
+    .chat-container {
+        display: flex;
+        height: 600px;
+        background-color: #333;
+        border-radius: 8px;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .contacts-list {
+        width: 300px;
+        background-color: #2a2a2a;
+        border-right: 1px solid rgba(255, 255, 255, 0.1);
+        overflow-y: auto;
+    }
+    
+    .contact-item {
+        padding: 15px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+    
+    .contact-item:hover, .contact-item.active {
+        background-color: #333;
+    }
+    
+    .contact-info {
+        display: flex;
+        align-items: center;
+    }
+    
+    .contact-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: #4C89F8;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 10px;
+        color: white;
+        font-weight: bold;
+    }
+    
+    .contact-details {
+        flex: 1;
+    }
+    
+    .contact-name {
+        color: white;
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+    
+    .contact-preview {
+        color: #999;
+        font-size: 12px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    .chat-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .chat-header {
+        padding: 15px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        background-color: #2a2a2a;
+    }
+    
+    .chat-title {
+        color: white;
+        font-weight: bold;
+    }
+    
+    .chat-subtitle {
+        color: #999;
+        font-size: 12px;
+    }
+    
+    .messages-list {
+        flex: 1;
+        padding: 15px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .message-bubble {
+        max-width: 70%;
+        padding: 10px 15px;
+        border-radius: 18px;
+        margin-bottom: 10px;
+        position: relative;
+    }
+    
+    .message-sent {
+        background-color: #4C89F8;
+        color: white;
+        align-self: flex-end;
+        border-bottom-right-radius: 5px;
+    }
+    
+    .message-received {
+        background-color: #444;
+        color: white;
+        align-self: flex-start;
+        border-bottom-left-radius: 5px;
+    }
+    
+    .message-time {
+        font-size: 10px;
+        color: rgba(255, 255, 255, 0.7);
+        text-align: right;
+        margin-top: 5px;
+    }
+    
+    .message-input {
+        padding: 15px;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        background-color: #2a2a2a;
+        display: flex;
+    }
+    
+    .message-input input {
+        flex: 1;
+        padding: 10px 15px;
+        border-radius: 20px;
+        border: none;
+        background-color: #444;
+        color: white;
+        margin-right: 10px;
+    }
+    
+    .send-button {
+        background-color: #4C89F8;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+    }
+    
+    .no-messages {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        color: #999;
+        text-align: center;
+        padding: 20px;
+    }
+    
+    .no-messages i {
+        font-size: 48px;
+        margin-bottom: 15px;
+        color: #666;
+    }
+    
+    .no-messages h3 {
+        color: white;
+        margin-bottom: 10px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="messages-container">
+    <div class="messages-header">
+        <h1>Сообщения</h1>
+        <p>Общайтесь с продавцами и покупателями</p>
+    </div>
+    
+    <div class="chat-container" data-has-active-contact="{% if active_contact %}true{% else %}false{% endif %}">
+        <div class="contacts-list">
+            {% if contacts %}
+                {% for contact in contacts %}
+                    <div class="contact-item {% if contact.id == active_contact.id %}active{% endif %}" data-contact-id="{{ contact.id }}">
+                        <div class="contact-info">
+                            <div class="contact-avatar">
+                                {{ contact.username|slice:":1"|upper }}
+                            </div>
+                            <div class="contact-details">
+                                <div class="contact-name">{{ contact.username }}</div>
+                                <div class="contact-preview">
+                                    {% if contact.last_message %}
+                                        {{ contact.last_message|truncatechars:30 }}
+                                    {% else %}
+                                        Нет сообщений
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="no-contacts">
+                    <p>У вас пока нет контактов</p>
+                </div>
+            {% endif %}
+        </div>
+        
+        <div class="chat-content">
+            {% if active_contact %}
+                <div class="chat-header">
+                    <div class="chat-title">{{ active_contact.username }}</div>
+                    <div class="chat-subtitle">
+                        {% if active_contact.is_online %}
+                            Онлайн
+                        {% else %}
+                            Был(а) в сети {{ active_contact.last_seen|timesince }} назад
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="messages-list">
+                    {% if messages_list %}
+                        {% for message in messages_list %}
+                            <div class="message-bubble {% if message.sender == user %}message-sent{% else %}message-received{% endif %}">
+                                {{ message.content }}
+                                <div class="message-time" data-full-time="{{ message.created_at|date:"d.m.Y H:i" }}">{{ message.created_at|date:"H:i" }}</div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="no-messages-yet">
+                            <p>Начните общение прямо сейчас</p>
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="message-input">
+                    <form method="post" action="{% url 'send_message' active_contact.id %}" id="message-form">
+                        {% csrf_token %}
+                        <input type="text" name="message" placeholder="Введите сообщение..." required>
+                        <button type="submit" class="send-button">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </form>
+                </div>
+            {% else %}
+                <div class="no-messages">
+                    <i class="fas fa-comments"></i>
+                    <h3>Выберите контакт для общения</h3>
+                    <p>Или начните новый разговор, ответив на запрос</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Handle contact selection
+        const contactItems = document.querySelectorAll('.contact-item');
+        contactItems.forEach(item => {
+            item.addEventListener('click', function() {
+                const contactId = this.getAttribute('data-contact-id');
+                window.location.href = `/users/messages/${contactId}/`;
+            });
+        });
+        
+        // Auto-scroll to the bottom of messages list
+        const messagesList = document.querySelector('.messages-list');
+        if (messagesList) {
+            messagesList.scrollTop = messagesList.scrollHeight;
+        }
+        
+        // Submit message form with Enter key
+        const messageInput = document.querySelector('.message-input input');
+        const messageForm = document.getElementById('message-form');
+        if (messageInput && messageForm) {
+            messageInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    messageForm.submit();
+                }
+            });
+        }
+        
+        // Auto-refresh chat functionality
+        // Using a data attribute to pass Django template value to JavaScript
+        const hasActiveContact = document.querySelector('.chat-container').dataset.hasActiveContact === 'true';
+        
+        if (hasActiveContact) {
+            const refreshChat = function() {
+                fetch(window.location.href)
+                    .then(response => response.text())
+                    .then(html => {
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(html, 'text/html');
+                        const newMessagesList = doc.querySelector('.messages-list');
+                        const currentMessagesList = document.querySelector('.messages-list');
+                        
+                        if (newMessagesList && currentMessagesList) {
+                            // Only update if there are new messages
+                            if (newMessagesList.innerHTML !== currentMessagesList.innerHTML) {
+                                currentMessagesList.innerHTML = newMessagesList.innerHTML;
+                                currentMessagesList.scrollTop = currentMessagesList.scrollHeight;
+                            }
+                        }
+                    })
+                    .catch(error => console.error('Error refreshing chat:', error));
+            };
+            
+            // Refresh every 10 seconds
+            setInterval(refreshChat, 10000);
+        }
+        
+        // Focus on message input when page loads
+        if (messageInput) {
+            messageInput.focus();
+        }
+        
+        // Add timestamp tooltips
+        const messageBubbles = document.querySelectorAll('.message-bubble');
+        messageBubbles.forEach(bubble => {
+            const timeElement = bubble.querySelector('.message-time');
+            if (timeElement) {
+                const fullTime = timeElement.getAttribute('data-full-time');
+                if (fullTime) {
+                    timeElement.title = fullTime;
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

@@ -1,7 +1,8 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load i18n %}
 
-{% block title %}Login{% endblock %}
+{% block title %}{% trans "Вход" %}{% endblock %}
 
 {% block content %}
 <div class="auth-container">
@@ -21,11 +22,11 @@
         {% csrf_token %}
         
         <div class="form-group">
-            <input type="email" name="email" placeholder="Email" required>
+            <input type="email" name="email" placeholder="{% trans "Электронная почта" %}" required>
         </div>
         
         <div class="form-group">
-            <input type="password" name="password" placeholder="Password" required>
+            <input type="password" name="password" placeholder="{% trans "Пароль" %}" required>
         </div>
         
         <div class="captcha-container">
@@ -33,12 +34,12 @@
         </div>
         
         <div class="form-group">
-            <button type="submit" class="btn">Login</button>
+            <button type="submit" class="btn">{% trans "Войти" %}</button>
         </div>
     </form>
     
     <div class="links">
-        <p>Don't have an account? <a href="{% url 'register' %}">Register</a></p>
+        <p>{% trans "Нет аккаунта?" %} <a href="{% url 'register' %}">{% trans "Зарегистрироваться" %}</a></p>
     </div>
 </div>
 {% endblock %}

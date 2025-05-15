@@ -13,6 +13,7 @@ class SearchRequest(models.Model):
     generation = models.CharField(max_length=100, blank=True)
     search = models.CharField(max_length=255, blank=True)
     condition = models.CharField(max_length=50, default='new')
+    image = models.ImageField(upload_to='search_requests', blank=True, null=True)
     created_at = models.DateTimeField(default=timezone.now)
     active = models.BooleanField(default=True)
     
@@ -79,6 +80,7 @@ class RequestResponse(models.Model):
     is_new = models.BooleanField(default=False)
     city = models.CharField(max_length=100)
     address = models.CharField(max_length=255)
+    image = models.ImageField(upload_to='response_images', blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     
     def __str__(self):
@@ -89,3 +91,17 @@ class RequestResponse(models.Model):
     
     class Meta:
         ordering = ['-created_at']
+
+class Message(models.Model):
+    sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_messages')
+    receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name='received_messages')
+    response = models.ForeignKey(RequestResponse, on_delete=models.SET_NULL, null=True, blank=True, related_name='messages')
+    content = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_read = models.BooleanField(default=False)
+    
+    def __str__(self):
+        return f"Message from {self.sender.username} to {self.receiver.username}"
+    
+    class Meta:
+        ordering = ['created_at']

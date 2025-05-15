@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 {% load static %}
-<html lang="en">
+{% load i18n %}
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Auth System{% endblock %}</title>
+    <title>{% block title %}Система Авторизации{% endblock %}</title>
     <link rel="stylesheet" href="{% static 'css/auth.css' %}">
     <link rel="stylesheet" href="{% static 'css/navbar.css' %}">
     <link rel="stylesheet" href="{% static 'css/background.css' %}">
@@ -23,7 +24,11 @@
             <span class="username">{{ user.username }}</span>
             <a href="{% url 'profile' %}">
                 <div class="profile-photo">
-                    <img src="{% static 'images/default-profile.png' %}" alt="Profile">
+                    {% if user_profile.profile_picture %}
+                        <img src="{{ user_profile.profile_picture.url }}" alt="Profile">
+                    {% else %}
+                        <img src="{% static 'images/default-profile.png' %}" alt="Profile">
+                    {% endif %}
                 </div>
             </a>
         </div>
@@ -37,13 +42,13 @@
             <i class="fas fa-shopping-cart"></i>
             Продам
         </a>
-        <a href="#" class="nav-item">
+        <a href="{% url 'messages' %}" class="nav-item {% if '/users/messages/' in request.path %}active{% endif %}">
             <i class="fas fa-comments"></i>
             Сообщения
         </a>
         <a href="{% url 'results' %}" class="nav-item {% if request.path == '/users/results/' %}active{% endif %}">
             <i class="fas fa-chart-bar"></i>
-            Результат
+            Результаты
         </a>
     </nav>
     {% endif %}
